@@ -1,18 +1,24 @@
 pipeline {
     agent any
 
+	parameters {
+        string(name: 'GIT_JAVA_URL', defaultValue: '', description: 'URL GIT repository of Java Project')
+	    string(name: 'GIT_JAVA_BRANCH', defaultValue: '', description: 'URL GIT repository of Java Project')
+        choice(name: 'JDK_CHOICE', choices: ['jdk8', 'jdk11', 'jdk17'], description: 'Choose JDK')
+	}
+
     tools {
         // Install the Maven version configured as "M3" and add it to the path.
         maven "M3"
-        jdk "jdk11"
+        jdk "${params.JDK_CHOICE}"
     }
 
     stages {
         stage('Build') {
             steps {
                 // Get some code from a GitHub repository
-                git branch: 'main',
-                    url:'https://github.com/matthcol/movieapijava2022.git'
+                git branch: "${params.GIT_JAVA_BRANCH}",
+					url: "${params.GIT_JAVA_URL}"
 
                 // Run Maven on a Unix agent.
                 sh "mvn -Dmaven.test.failure.ignore=true clean package"
